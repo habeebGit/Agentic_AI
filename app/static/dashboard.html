@@ -8,6 +8,18 @@
     .report { border: 1px solid #ddd; padding: 12px; margin-bottom: 8px; }
     .report h3 { margin: 0; }
     .prov { font-size: 0.9em; color: #555; }
+    /* Form styles */
+    .form-card { max-width:900px; border:1px solid #eee; padding:16px; margin-bottom:24px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+    .form-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .form-row .field { flex:1; min-width:140px; }
+    label.field-label { display:block; font-size:0.85em; color:#333; margin-bottom:4px; }
+    input[type=text], input[type=number], textarea { width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; }
+    textarea { min-height:80px; }
+    .actions { margin-top:10px; }
+    .btn { background:#1673ff; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+    .btn.secondary { background:#eee; color:#222; }
+    .msg { margin-left:12px; }
+    .error { color:#b00020; font-size:0.9em; margin-top:6px; }
   </style>
 </head>
 <body>
@@ -24,8 +36,170 @@
     <button onclick="loadProperties()">Refresh properties</button>
     <div id="properties"></div>
   </div>
+  <hr/>
+  <h2>Add Property</h2>
+  <div class="form-card" id="addForm">
+    <div class="form-row">
+      <div class="field">
+        <label class="field-label">Source provider *</label>
+        <input id="src_provider" type="text" required placeholder="e.g. seed" />
+      </div>
+      <div class="field">
+        <label class="field-label">Source id *</label>
+        <input id="src_id" type="text" required placeholder="e.g. SEED-001" />
+      </div>
+      <div class="field">
+        <label class="field-label">Property type</label>
+        <input id="prop_type" type="text" placeholder="office, retail, industrial" />
+      </div>
+      <div class="field" style="max-width:160px">
+        <label class="field-label">Building sqft</label>
+        <input id="building_sqft" type="number" min="0" placeholder="32000" />
+      </div>
+    </div>
+
+    <h3>Address</h3>
+    <div class="form-row">
+      <div class="field" style="flex:2">
+        <label class="field-label">Street</label>
+        <input id="addr_street" type="text" placeholder="Street" />
+      </div>
+      <div class="field">
+        <label class="field-label">City</label>
+        <input id="addr_city" type="text" placeholder="City" />
+      </div>
+      <div class="field" style="max-width:100px">
+        <label class="field-label">State</label>
+        <input id="addr_state" type="text" placeholder="ST" />
+      </div>
+      <div class="field" style="max-width:110px">
+        <label class="field-label">ZIP</label>
+        <input id="addr_zip" type="text" placeholder="ZIP" />
+      </div>
+      <div class="field" style="max-width:110px">
+        <label class="field-label">Country</label>
+        <input id="addr_country" type="text" placeholder="US" value="US" />
+      </div>
+    </div>
+
+    <h3>Coordinates (optional)</h3>
+    <div class="form-row">
+      <div class="field" style="max-width:180px">
+        <label class="field-label">Latitude</label>
+        <input id="addr_lat" type="number" step="any" placeholder="30.268" />
+      </div>
+      <div class="field" style="max-width:180px">
+        <label class="field-label">Longitude</label>
+        <input id="addr_lon" type="number" step="any" placeholder="-97.743" />
+      </div>
+    </div>
+
+    <h3>Financials (last 12 mo, optional)</h3>
+    <div class="form-row">
+      <div class="field" style="max-width:200px">
+        <label class="field-label">Gross income</label>
+        <input id="fin_gross" type="number" step="0.01" placeholder="920000" />
+      </div>
+      <div class="field" style="max-width:200px">
+        <label class="field-label">Net operating income</label>
+        <input id="fin_noi" type="number" step="0.01" placeholder="400000" />
+      </div>
+      <div class="field" style="max-width:200px">
+        <label class="field-label">Total expenses</label>
+        <input id="fin_expenses" type="number" step="0.01" placeholder="520000" />
+      </div>
+    </div>
+
+    <h3>Provenance (optional JSON array)</h3>
+    <textarea id="prov_json" placeholder='[{"fieldPath":"address","provider":"seed","confidence":0.9}]'></textarea>
+
+    <div class="actions">
+      <button class="btn" id="submitBtn" onclick="submitNewProperty()">Submit Property</button>
+      <button class="btn secondary" onclick="fillSample();return false;">Fill sample</button>
+      <span id="submit_msg" class="msg"></span>
+      <div id="form_error" class="error" aria-live="polite"></div>
+    </div>
+  </div>
 
   <script>
+    function validateForm(){
+      const provider = document.getElementById('src_provider').value.trim();
+      const providerId = document.getElementById('src_id').value.trim();
+      const zip = document.getElementById('addr_zip').value.trim();
+      const errorEl = document.getElementById('form_error');
+      errorEl.textContent = '';
+      if(!provider || !providerId){ errorEl.textContent = 'Source provider and id are required.'; return false; }
+      if(zip && zip.length < 3){ errorEl.textContent = 'ZIP must be at least 3 characters.'; return false; }
+      return true;
+    }
+
+    function fillSample(){
+      document.getElementById('src_provider').value='seed';
+      document.getElementById('src_id').value='SEED-XYZ-'+Math.floor(Math.random()*1000);
+      document.getElementById('prop_type').value='office';
+      document.getElementById('building_sqft').value='32000';
+      document.getElementById('addr_street').value='1 Main St';
+      document.getElementById('addr_city').value='City';
+      document.getElementById('addr_state').value='ST';
+      document.getElementById('addr_zip').value='12345';
+      document.getElementById('addr_country').value='US';
+      document.getElementById('fin_gross').value='920000';
+      document.getElementById('fin_noi').value='400000';
+      document.getElementById('fin_expenses').value='520000';
+      document.getElementById('prov_json').value='[{"fieldPath":"address","provider":"seed","confidence":0.95}]';
+      document.getElementById('form_error').textContent='';
+      document.getElementById('submit_msg').textContent='';
+    }
+
+    async function submitNewProperty(){
+      if(!validateForm()) return;
+      const provider = document.getElementById('src_provider').value.trim();
+      const providerId = document.getElementById('src_id').value.trim();
+      const payload = {
+        sourceIds: [{ provider: provider, id: providerId }],
+        address: {
+          street: document.getElementById('addr_street').value || '',
+          city: document.getElementById('addr_city').value || '',
+          state: document.getElementById('addr_state').value || '',
+          zip: document.getElementById('addr_zip').value || '',
+          country: document.getElementById('addr_country').value || 'US'
+        },
+        propertyType: document.getElementById('prop_type').value || 'unknown'
+      };
+      const b = document.getElementById('building_sqft').value.trim(); if(b) payload.buildingSqFt = Number(b);
+      const lat = document.getElementById('addr_lat').value.trim(); const lon = document.getElementById('addr_lon').value.trim(); if(lat) payload.address.lat = Number(lat); if(lon) payload.address.lon = Number(lon);
+      const g = document.getElementById('fin_gross').value.trim(); const n = document.getElementById('fin_noi').value.trim(); const t = document.getElementById('fin_expenses').value.trim(); if(g||n||t) payload.financials = { last12Mo: { grossIncome: g?Number(g):null, netOperatingIncome: n?Number(n):null, totalExpenses: t?Number(t):null } };
+      const provText = document.getElementById('prov_json').value.trim(); if(provText){ try{ payload.provenance = JSON.parse(provText); }catch(e){ document.getElementById('form_error').textContent='Invalid provenance JSON: '+e; return; } }
+      const submitMsg = document.getElementById('submit_msg'); submitMsg.style.color='black'; submitMsg.textContent='Submitting...';
+      try{
+        const res = await fetch('/api/properties', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await res.json().catch(()=>null);
+        if(!res.ok){
+          // Normalize common FastAPI error shapes
+          let errMsg = res.statusText || 'Request failed';
+          if(data){
+            if(data.detail){
+              if(Array.isArray(data.detail)){
+                errMsg = data.detail.map(d => d.msg || d.message || JSON.stringify(d)).join('; ');
+              } else if(typeof data.detail === 'string'){
+                errMsg = data.detail;
+              } else {
+                errMsg = JSON.stringify(data.detail);
+              }
+            } else {
+              errMsg = JSON.stringify(data);
+            }
+          }
+          throw new Error(errMsg);
+        }
+        submitMsg.style.color='green'; submitMsg.textContent = 'OK — id: '+(data && data.id?data.id:JSON.stringify(data));
+        document.getElementById('src_id').value=''; document.getElementById('prov_json').value=''; document.getElementById('form_error').textContent='';
+        loadProperties();
+      }catch(err){ submitMsg.style.color='red'; submitMsg.textContent = 'Error: '+(err && err.message ? err.message : String(err)); }
+      setTimeout(()=>{ const el=document.getElementById('submit_msg'); if(el) el.textContent=''; }, 8000);
+    }
+
+    // existing functions
     async function loadReports(){
       const r = await fetch('/api/reports');
       const data = await r.json();
@@ -34,7 +208,11 @@
       data.forEach(rep => {
         const d = document.createElement('div');
         d.className = 'report';
-        d.innerHTML = `<h3>${rep.reportId || rep.id}</h3><div>${rep.summary || ''}</div><div class='prov'>Confidence: ${rep.confidenceOverall}</div>`;
+        let html = `<h3>${rep.reportId || rep.id}</h3><div>${rep.summary || ''}</div><div class='prov'>Confidence: ${rep.confidenceOverall}</div>`;
+        if(rep.propertyId){
+          html += `<div style="margin-top:8px"><a href="/static/property.html?id=${rep.propertyId}" target="_blank">View property</a></div>`;
+        }
+        d.innerHTML = html;
         el.appendChild(d);
       });
     }
@@ -63,7 +241,10 @@
       data.items.forEach(p => {
         const d = document.createElement('div');
         d.className = 'report';
-        d.innerHTML = `<strong>${p.address.street}, ${p.address.city}</strong> — ${p.propertyType} — <a href='#' onclick="document.getElementById('propId').value='${p.id}';loadProvenance();return false;">View provenance</a>`;
+        let html = `<strong>${p.address.street}, ${p.address.city}</strong> — ${p.propertyType}`;
+        html += ` — <a href='#' onclick="document.getElementById('propId').value='${p.id}';loadProvenance();return false;">View provenance</a>`;
+        html += ` — <a href="/static/property.html?id=${p.id}" target="_blank">View property</a>`;
+        d.innerHTML = html;
         el.appendChild(d);
       });
     }

@@ -43,8 +43,8 @@ class AddressIn(BaseModel):
     state: str = Field(..., min_length=1)
     zip: str = Field(..., min_length=3)
     country: Optional[str] = 'US'
-    lat: Optional[float]
-    lon: Optional[float]
+    lat: Optional[float] = None
+    lon: Optional[float] = None
 
 
 class FinancialsLast12MoIn(BaseModel):
@@ -56,18 +56,18 @@ class FinancialsLast12MoIn(BaseModel):
 class ProvenanceIn(BaseModel):
     fieldPath: str
     provider: str
-    rawReference: Optional[str]
+    rawReference: Optional[str] = None
     confidence: float = Field(..., ge=0.0, le=1.0)
-    rawValue: Optional[dict]
+    rawValue: Optional[dict] = None
 
 
 class PropertyCreate(BaseModel):
     sourceIds: List[dict] = Field(..., min_items=1)
     address: AddressIn
     propertyType: str
-    buildingSqFt: Optional[float]
-    financials: Optional[dict]
-    provenance: Optional[List[ProvenanceIn]]
+    buildingSqFt: Optional[float] = None
+    financials: Optional[dict] = None
+    provenance: Optional[List[ProvenanceIn]] = None
 
 
 @app.post('/api/properties', response_model=dict)

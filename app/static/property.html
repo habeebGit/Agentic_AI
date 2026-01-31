@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Property Detail</title>
+  <style>
+    body{font-family:Arial, sans-serif;margin:20px}
+    .card{border:1px solid #ddd;padding:12px;border-radius:6px;max-width:900px}
+    pre{background:#f8f8f8;padding:8px;border-radius:4px}
+    a.btn{display:inline-block;padding:8px 10px;background:#1673ff;color:#fff;border-radius:6px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <a href="/" class="btn">&larr; Back</a>
+  <h1>Property detail</h1>
+  <div>
+    <label>Property ID: </label>
+    <input id="propId" style="width:420px;padding:6px;margin:6px 0" />
+    <button onclick="loadFromInput()">Load</button>
+    <button onclick="openInNewTab()">Open JSON in new tab</button>
+  </div>
+  <div id="result" style="margin-top:12px"></div>
+
+  <script>
+    function qs(name){
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+    function renderProperty(p){
+      const el = document.getElementById('result');
+      if(!p){ el.innerHTML='<p>Not found</p>'; return; }
+      let html = `<div class="card">`;
+      html += `<h2>${p.address.street || ''}, ${p.address.city || ''}</h2>`;
+      html += `<p><strong>Type:</strong> ${p.propertyType || ''} — <strong>Building sqft:</strong> ${p.buildingSqFt || ''}</p>`;
+      html += `<h3>Address</h3><pre>${JSON.stringify(p.address,null,2)}</pre>`;
+      html += `<h3>Source IDs</h3><pre>${JSON.stringify(p.sourceIds,null,2)}</pre>`;
+      html += `</div>`;
+      el.innerHTML = html;
+    }
+    async function load(id){
+      if(!id) return;
+      const el = document.getElementById('result');
+      el.innerHTML = 'Loading...';
+      try{
+        const r = await fetch('/api/properties/'+encodeURIComponent(id));
+        if(!r.ok){ el.innerHTML = '<p style="color:red">Failed to load property</p>'; return; }
+        const data = await r.json();
+        renderProperty(data);
+      }catch(e){ el.innerHTML = '<p style="color:red">'+e.message+'</p>'; }
+    }
+    function loadFromInput(){ load(document.getElementById('propId').value.trim()); }
+    function openInNewTab(){ const id = document.getElementById('propId').value.trim(); if(id) window.open('/api/properties/'+encodeURIComponent(id),'_blank'); }
+    // auto-load from ?id= query
+    const qid = qs('id');
+    if(qid){ document.getElementById('propId').value = qid; load(qid); }
+  </script>
+</body>
+</html>
