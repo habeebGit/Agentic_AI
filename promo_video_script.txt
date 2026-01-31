@@ -1,0 +1,25 @@
+Agentic AI — Commercial Real Estate Due-Diligence
+
+Slide 1 (Title)
+Agentic AI
+Commercial Property Due-Diligence, automated.
+
+Slide 2 (Problem)
+Analysts waste days collecting records.
+Manual processes cause missed risks and slow deals.
+
+Slide 3 (Solution)
+Agentic AI ingests multi-source data, normalizes records,
+and generates auditable reports with provenance.
+
+Slide 4 (Benefits)
+Faster decisions — Repeatable, auditable, lower cost.
+Confidence scores and source links for every data point.
+
+Slide 5 (How it works)
+FastAPI backend • Postgres canonical store • Provenance tracking
+Dashboard for review • Agent workflows for analysis
+
+Slide 6 (Call to action)
+Pilot with us — accelerate your underwriting.
+Visit: your-company.example/contact
