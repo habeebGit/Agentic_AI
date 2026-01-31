@@ -8,3 +8,7 @@ pydantic
 pytest
 httpx
 requests
+rq==1.14.0
+redis==5.3.0
+openai==1.8.0
+jsonschema==4.19.0

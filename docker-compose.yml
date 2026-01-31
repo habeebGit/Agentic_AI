@@ -30,5 +30,31 @@ services:
       interval: 10s
       retries: 5
       start_period: 10s
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  worker:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/agentic_ai
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app:rw
+    command: ["/bin/sh","-c","./scripts/wait_for_db.sh db 5432 60 && rq worker default"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL","rq info || exit 1"]
+      interval: 10s
+      retries: 3
+
 volumes:
   db_data:

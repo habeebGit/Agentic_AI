@@ -10,11 +10,11 @@ load_dotenv()
 DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('SQLALCHEMY_URL') or 'postgresql+psycopg2://postgres:postgres@localhost:5432/agentic_ai'
 
 engine = make_engine(DATABASE_URL)
-SessionLocal = make_session(engine)()
+SessionLocal = make_session(engine)
 
 
 def get_db() -> Iterator[Session]:
-    db = SessionLocal
+    db = SessionLocal()
     try:
         yield db
     finally:

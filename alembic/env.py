@@ -2,7 +2,7 @@ from logging.config import fileConfig
 import logging
 import os
 import sys
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, create_engine
 from alembic import context
 
 # this is the Alembic Config object, which provides the values from the .ini file in use.
@@ -24,7 +24,8 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline():
-    url = config.get_main_option("sqlalchemy.url")
+    # Allow DATABASE_URL env var to override the alembic.ini value
+    url = os.environ.get('DATABASE_URL') or config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -37,11 +38,16 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    # Prefer DATABASE_URL env var if set; otherwise use config section
+    url = os.environ.get('DATABASE_URL')
+    if url:
+        connectable = create_engine(url, poolclass=pool.NullPool)
+    else:
+        connectable = engine_from_config(
+            config.get_section(config.config_ini_section),
+            prefix="sqlalchemy.",
+            poolclass=pool.NullPool,
+        )
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
