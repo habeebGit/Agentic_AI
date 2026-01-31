@@ -1,0 +1,350 @@
+openapi: 3.0.3
+info:
+  title: Commercial Due-Diligence Agent API
+  version: "1.0.0"
+  description: API for ingesting commercial properties, running agent workflows, retrieving reports and approvals.
+servers:
+  - url: https://api.example.com
+security:
+  - oauth2: [properties:read, properties:write, agents:run, reports:read, reports:write, approvals:write]
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            properties:read: Read property data
+            properties:write: Create/Update properties
+            agents:run: Run agent workflows
+            reports:read: Read generated reports
+            reports:write: Create reports
+            approvals:write: Approve reports/actions
+  schemas:
+    Address:
+      type: object
+      properties:
+        street: { type: string }
+        city: { type: string }
+        state: { type: string }
+        zip: { type: string }
+        country: { type: string, default: "US" }
+        lat: { type: number, format: float }
+        lon: { type: number, format: float }
+      required: [street, city, state, zip]
+    ProvenanceEntry:
+      type: object
+      properties:
+        fieldPath: { type: string }
+        provider: { type: string }
+        rawReference: { type: string, format: uri }
+        fetchedAt: { type: string, format: date-time }
+        confidence: { type: number, format: float, minimum: 0, maximum: 1 }
+      required: [fieldPath, provider, fetchedAt, confidence]
+    FinancialsLast12Mo:
+      type: object
+      properties:
+        grossIncome: { type: number }
+        netOperatingIncome: { type: number }
+        totalExpenses: { type: number }
+    Property:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        sourceIds:
+          type: array
+          items:
+            type: object
+            properties:
+              provider: { type: string }
+              id: { type: string }
+            required: [provider, id]
+        title: { type: string }
+        address: { $ref: '#/components/schemas/Address' }
+        propertyType:
+          type: string
+          enum: [office, retail, industrial, multifamily, mixed_use, hospitality, land]
+        buildingSqFt: { type: number }
+        lotSqFt: { type: number }
+        yearBuilt: { type: integer }
+        occupancy:
+          type: object
+          properties:
+            currentOccupancyPct: { type: number }
+            leases:
+              type: array
+              items:
+                type: object
+                properties:
+                  tenantName: { type: string }
+                  leasedSqFt: { type: number }
+                  leaseStart: { type: string, format: date }
+                  leaseEnd: { type: string, format: date }
+                  rentPSF: { type: number }
+        financials:
+          type: object
+          properties:
+            last12Mo: { $ref: '#/components/schemas/FinancialsLast12Mo' }
+        provenance:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProvenanceEntry'
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [sourceIds, address, propertyType]
+    PropertyUpsertRequest:
+      type: object
+      properties:
+        sourceIds: { $ref: '#/components/schemas/Property/properties/sourceIds' }
+        address: { $ref: '#/components/schemas/Address' }
+        propertyType: { type: string }
+        buildingSqFt: { type: number }
+        financials: { type: object, properties: { last12Mo: { $ref: '#/components/schemas/FinancialsLast12Mo' } } }
+        provenance:
+          type: array
+          items: { $ref: '#/components/schemas/ProvenanceEntry' }
+      required: [sourceIds, address, propertyType]
+    AgentRunRequest:
+      type: object
+      properties:
+        agent:
+          type: string
+          example: due_diligence_v1
+        propertyId:
+          type: string
+          format: uuid
+        runMode:
+          type: string
+          enum: [dry_run, propose, apply]
+        userId: { type: string }
+        params:
+          type: object
+          additionalProperties: true
+        requestId:
+          type: string
+          description: Idempotency key
+      required: [agent, propertyId, runMode, userId]
+    AgentTask:
+      type: object
+      properties:
+        taskId: { type: string }
+        status:
+          type: string
+          enum: [queued, in_progress, completed, failed]
+        reportId: { type: string }
+        log:
+          type: array
+          items:
+            type: object
+            properties: { t: { type: string, format: date-time }, msg: { type: string } }
+    Report:
+      type: object
+      properties:
+        reportId: { type: string }
+        propertyId: { type: string }
+        summary: { type: string }
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              title: { type: string }
+              content:
+                type: object
+                additionalProperties: true
+        generatedAt: { type: string, format: date-time }
+        confidenceOverall: { type: number, minimum: 0, maximum: 1 }
+    ApprovalRequest:
+      type: object
+      properties:
+        userId: { type: string }
+        decision:
+          type: string
+          enum: [approve, request_changes, reject]
+        notes: { type: string }
+      required: [userId, decision]
+    ErrorResponse:
+      type: object
+      properties:
+        code: { type: integer }
+        message: { type: string }
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+
+paths:
+  /api/properties:
+    post:
+      summary: Upsert canonical property record
+      operationId: upsertProperty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PropertyUpsertRequest' }
+      responses:
+        "201":
+          description: Property ingested
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  status: { type: string, example: ingested }
+                  normalized: { type: boolean, example: true }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /api/properties/{id}:
+    get:
+      summary: Fetch canonical property by id
+      operationId: getProperty
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Property record
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Property' }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /api/agents/run:
+    post:
+      summary: Run an agent workflow on a property
+      operationId: runAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AgentRunRequest' }
+      responses:
+        "202":
+          description: Task queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  taskId: { type: string }
+                  status: { type: string, example: queued }
+                  message: { type: string }
+        "422":
+          description: Missing required fields to run agent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /api/agents/tasks/{taskId}:
+    get:
+      summary: Get agent task status and results
+      operationId: getAgentTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Task status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentTask' }
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /api/reports/{reportId}:
+    get:
+      summary: Get generated report
+      operationId: getReport
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Report payload
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Report' }
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /api/approvals/{reportId}/approve:
+    post:
+      summary: Human approval endpoint for a report
+      operationId: approveReport
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApprovalRequest' }
+      responses:
+        "200":
+          description: Approval recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: approved }
+                  approvedAt: { type: string, format: date-time }
+        "403":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /webhooks/agent_events:
+    post:
+      summary: Webhook receiver for agent events (use this as a sample callback)
+      operationId: webhookAgentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                eventType:
+                  type: string
+                  enum: [agent.task.completed, report.generated, approval.required]
+                payload:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "204":
+          description: Received
+
+tags:
+  - name: properties
+    description: Property ingestion and retrieval
+  - name: agents
+    description: Agent orchestration and tasks
+  - name: reports
+    description: Generated reports and approvals
+  - name: webhooks
+    description: Outbound/inbound event webhooks
