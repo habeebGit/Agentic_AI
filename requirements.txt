@@ -2,3 +2,9 @@ alembic
 SQLAlchemy
 psycopg2-binary
 python-dotenv
+fastapi
+uvicorn[standard]
+pydantic
+pytest
+httpx
+requests

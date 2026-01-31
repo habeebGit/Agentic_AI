@@ -27,6 +27,8 @@ if not DB_URL:
 alembic_ini = Path(__file__).resolve().parents[1] / 'alembic.ini'
 config = Config(str(alembic_ini))
 config.set_main_option('sqlalchemy.url', DB_URL)
+# Ensure alembic script location is absolute (so alembic finds the alembic/ folder regardless of CWD)
+config.set_main_option('script_location', str(Path(__file__).resolve().parents[1] / 'alembic'))
 
 # pass through alembic CLI args
 if len(sys.argv) < 2:

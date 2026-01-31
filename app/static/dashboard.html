@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Agentic AI - Reports Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .report { border: 1px solid #ddd; padding: 12px; margin-bottom: 8px; }
+    .report h3 { margin: 0; }
+    .prov { font-size: 0.9em; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Reports</h1>
+  <div id="reports"></div>
+  <hr/>
+  <h2>Provenance for property</h2>
+  <input id="propId" placeholder="Enter property id" style="width:400px"/>
+  <button onclick="loadProvenance()">Load</button>
+  <div id="provs"></div>
+  <hr/>
+  <h2>Properties</h2>
+  <div>
+    <button onclick="loadProperties()">Refresh properties</button>
+    <div id="properties"></div>
+  </div>
+
+  <script>
+    async function loadReports(){
+      const r = await fetch('/api/reports');
+      const data = await r.json();
+      const el = document.getElementById('reports');
+      el.innerHTML = '';
+      data.forEach(rep => {
+        const d = document.createElement('div');
+        d.className = 'report';
+        d.innerHTML = `<h3>${rep.reportId || rep.id}</h3><div>${rep.summary || ''}</div><div class='prov'>Confidence: ${rep.confidenceOverall}</div>`;
+        el.appendChild(d);
+      });
+    }
+
+    async function loadProvenance(){
+      const pid = document.getElementById('propId').value.trim();
+      if(!pid) return alert('enter property id');
+      const r = await fetch(`/api/properties/${pid}/provenance`);
+      if(!r.ok) return alert('failed to load provenance');
+      const data = await r.json();
+      const el = document.getElementById('provs');
+      el.innerHTML = '';
+      data.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'prov';
+        d.innerHTML = `<strong>${p.fieldPath}</strong> (${p.provider}) — confidence: ${p.confidence}<br/>ref: ${p.rawReference || 'n/a'}<br/>value: <pre>${JSON.stringify(p.rawValue,null,2)}</pre>`;
+        el.appendChild(d);
+      });
+    }
+
+    async function loadProperties(page=1,limit=50){
+      const r = await fetch(`/api/properties?page=${page}&limit=${limit}`);
+      const data = await r.json();
+      const el = document.getElementById('properties');
+      el.innerHTML = '';
+      data.items.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'report';
+        d.innerHTML = `<strong>${p.address.street}, ${p.address.city}</strong> — ${p.propertyType} — <a href='#' onclick="document.getElementById('propId').value='${p.id}';loadProvenance();return false;">View provenance</a>`;
+        el.appendChild(d);
+      });
+    }
+
+    loadReports();
+    loadProperties();
+  </script>
+
+</body>
+</html>
