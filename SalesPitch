@@ -1,0 +1,60 @@
+Agentic AI — Commercial Real Estate Due-Diligence Agent
+
+Problem
+
+Manual commercial real-estate due diligence is slow, error-prone, and expensive. Analysts stitch together public records, proprietary feeds, lease documents, financial statements and third‑party reports — resulting in inconsistent conclusions, missed risks, and long deal cycles.
+
+Solution
+
+Agentic AI automates and standardizes commercial property due diligence by ingesting multi-source data, creating a canonical property record, surfacing provenance for every claim, and producing structured reports and risk scores. It combines data engineering, SQL-backed provenance, and LLM-powered analysis to deliver repeatable, auditable diligence at scale.
+
+Key benefits
+
+- Speed: reduce time-to-insight from days to hours by automating ingestion, normalization, and initial analysis.
+- Accuracy & auditability: every derived data point links back to raw sources with confidence metrics and timestamps, enabling defensible decisions.
+- Cost efficiency: reduce analyst hours and accelerate deal throughput.
+- Consistency: standardized schemas, migrations and agent workflows produce repeatable outputs across portfolios.
+
+Core features (MVP)
+
+- Canonical property model (address, identifiers, financials, leases, docs)
+- Multi-source ingest and source-id upserts
+- Provenance tracking (field-level source, confidence, raw payload)
+- Structured report generation with confidence scoring
+- Lightweight web dashboard for search, provenance inspection, and property review
+- Alembic-powered migrations, Postgres-backed storage, FastAPI endpoints for integrations
+
+Technology
+
+- FastAPI + Uvicorn for the API
+- SQLAlchemy + Alembic for data modeling & migrations
+- Postgres (pgcrypto, citext, pg_trgm) for robust storage and search
+- Docker + docker-compose for local dev and reproducible environments
+- Minimal web UI for analysts to review properties, provenance and reports
+
+Target customers
+
+- CRE investors and asset managers performing portfolio-level underwriting
+- Due-diligence teams at brokerages and advisory firms
+- Lenders and RE debt underwriters seeking faster, auditable credit reviews
+
+Go-to-market & monetization
+
+- Pilot engagements with mid-sized asset managers (SaaS + professional services integration)
+- Tiered subscription per-asset or per-seat, with premium features for automated agent workflows and priority support
+- Data partnerships / paid connectors for premium property and lease data
+
+Next milestones
+
+1. Harden migrations and production deployment (Dockerfile, web service, CI)
+2. Add connectors for key CRE data sources and secure credentials management
+3. Expand report types and automated agent workflows for targeted underwriting tasks
+4. Pilot with 2–3 customers and iterate UX and report output based on feedback
+
+Ask
+
+Looking for pilot partners and early-stage investment to build connectors, expand agent capabilities, and commercialize the platform.
+
+Contact
+
+Team / repo owner
