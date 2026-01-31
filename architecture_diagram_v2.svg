@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333" />
+    </marker>
+    <style>
+      .box { fill: #f7f9fc; stroke: #2c3e50; stroke-width: 2; rx:8; }
+      .db { fill: #ffe9cc; stroke: #b87300; stroke-width:2; rx:8 }
+      .svc { fill: #e8f7e8; stroke: #2c7a2c; stroke-width:2; rx:8 }
+      .text { font-family: Inter, Arial, sans-serif; font-size:14px; fill:#17202a }
+      .title { font-size:18px; font-weight:700 }
+      .sub { font-size:12px; fill:#4a5a6a }
+      .cloud { fill: #eef6ff; stroke:#2b6fb3; stroke-width:2; rx:12 }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="24" y="36" class="title text">Agentic AI — CRE Due-Diligence Architecture (v2)</text>
+  <text x="24" y="56" class="sub">Lightweight diagram saved as architecture_diagram_v2.svg</text>
+
+  <!-- Browser / Analyst UI -->
+  <rect x="40" y="90" width="260" height="110" class="box" />
+  <text x="60" y="120" class="text">Analyst Browser / Dashboard</text>
+  <text x="60" y="140" class="sub">React / static HTML</text>
+
+  <!-- API Gateway / Web -->
+  <rect x="420" y="80" width="300" height="120" class="svc" />
+  <text x="440" y="110" class="text">FastAPI Web Service</text>
+  <text x="440" y="132" class="sub">Uvicorn + Gunicorn (prod)</text>
+
+  <!-- Worker / Agents -->
+  <rect x="420" y="220" width="300" height="120" class="box" />
+  <text x="440" y="250" class="text">Agent Workers</text>
+  <text x="440" y="272" class="sub">Task queue (RQ/Celery) • LLM connectors</text>
+
+  <!-- LLM / External -->
+  <rect x="820" y="90" width="320" height="110" class="cloud" />
+  <text x="840" y="120" class="text">LLM Providers</text>
+  <text x="840" y="140" class="sub">OpenAI / Azure / Anthropic (external)</text>
+
+  <!-- Storage & DB -->
+  <rect x="420" y="380" width="300" height="140" class="db" />
+  <text x="440" y="410" class="text">Postgres</text>
+  <text x="440" y="432" class="sub">pgcrypto, citext, pg_trgm • SQLAlchemy ORM</text>
+
+  <!-- Object storage -->
+  <rect x="820" y="220" width="320" height="100" class="box" />
+  <text x="840" y="250" class="text">Object Storage / Files</text>
+  <text x="840" y="270" class="sub">S3 / MinIO (documents, payloads)</text>
+
+  <!-- Alembic & Migrations -->
+  <rect x="40" y="220" width="260" height="80" class="box" />
+  <text x="60" y="250" class="text">Alembic Migrations</text>
+  <text x="60" y="270" class="sub">Versioned schema &amp; migrations</text>
+
+  <!-- CI/CD -->
+  <rect x="40" y="340" width="260" height="80" class="box" />
+  <text x="60" y="370" class="text">CI / CD</text>
+  <text x="60" y="390" class="sub">Lint, Tests, Build, Deploy</text>
+
+  <!-- Docker / Compose -->
+  <rect x="40" y="460" width="260" height="100" class="box" />
+  <text x="60" y="490" class="text">Docker / docker-compose</text>
+  <text x="60" y="512" class="sub">Local dev &amp; reproducible envs</text>
+
+  <!-- Arrows -->
+  <line x1="300" y1="145" x2="420" y2="145" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="720" y1="145" x2="820" y2="145" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+
+  <line x1="570" y1="200" x2="570" y2="220" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="720" y1="260" x2="820" y2="260" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+
+  <line x1="570" y1="340" x2="570" y2="380" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="720" y1="430" x2="820" y2="270" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+
+  <line x1="300" y1="260" x2="420" y2="260" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="300" y1="300" x2="420" y2="300" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+
+  <line x1="300" y1="500" x2="420" y2="500" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Labels on arrows -->
+  <text x="360" y="135" class="sub">HTTP / REST • OpenAPI</text>
+  <text x="760" y="135" class="sub">LLM API calls</text>
+  <text x="590" y="360" class="sub">ORM • Queries</text>
+  <text x="660" y="280" class="sub">Store docs / payloads</text>
+  <text x="210" y="250" class="sub">Version migrations</text>
+  <text x="210" y="420" class="sub">CI triggers</text>
+
+  <!-- Additional callouts -->
+  <g>
+    <rect x="760" y="350" width="340" height="120" fill="#fff9f0" stroke="#b87300" stroke-width="1" rx="8" />
+    <text x="780" y="377" class="text">Provenance &amp; Reports</text>
+    <text x="780" y="397" class="sub">Field-level provenance • Report generator</text>
+    <text x="780" y="417" class="sub">Export (PDF/CSV) • Confidence scores</text>
+  </g>
+
+  <!-- Footer legend -->
+  <rect x="24" y="720" width="1150" height="56" rx="8" fill="#ffffff" stroke="#dfe6ee" />
+  <text x="40" y="744" class="sub">Legend:</text>
+  <text x="120" y="744" class="sub">Green = services • Yellow = DB • Blue = external/managed</text>
+
+</svg>

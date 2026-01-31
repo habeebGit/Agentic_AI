@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <style>
+    .box { fill:#ffffff; stroke:#2b6cb0; stroke-width:2; rx:8; }
+    .small { font: 12px/1.1 sans-serif; fill:#111827; }
+    .title { font: 14px/1.1 sans-serif; font-weight:700; fill:#0b3d91; }
+    .label { font: 13px/1.1 sans-serif; fill:#0b3d91; }
+    .arrow { stroke:#4a5568; stroke-width:2; marker-end:url(#arrowhead); }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4a5568" />
+    </marker>
+  </defs>
+
+  <!-- External sources -->
+  <rect class="box" x="36" y="40" width="220" height="80" />
+  <text x="146" y="70" text-anchor="middle" class="title">External Data Sources</text>
+  <text x="146" y="92" text-anchor="middle" class="small">public records · feeds · leases · uploads</text>
+
+  <!-- Ingest / Normalizer -->
+  <rect class="box" x="300" y="40" width="260" height="80" />
+  <text x="430" y="70" text-anchor="middle" class="title">Ingest / Normalizer</text>
+  <text x="430" y="92" text-anchor="middle" class="small">ETL · mapping · provenance capture</text>
+
+  <!-- FastAPI -->
+  <rect class="box" x="620" y="40" width="260" height="80" />
+  <text x="750" y="70" text-anchor="middle" class="title">FastAPI / API</text>
+  <text x="750" y="92" text-anchor="middle" class="small">ingest endpoints · reports · dashboard APIs</text>
+
+  <!-- Arrows top row -->
+  <line class="arrow" x1="256" y1="80" x2="300" y2="80" />
+  <line class="arrow" x1="560" y1="80" x2="620" y2="80" />
+
+  <!-- ORM / DB layer -->
+  <rect class="box" x="420" y="170" width="360" height="90" />
+  <text x="600" y="200" text-anchor="middle" class="title">SQLAlchemy / ORM</text>
+  <text x="600" y="222" text-anchor="middle" class="small">models · session · queries</text>
+
+  <!-- Postgres -->
+  <rect class="box" x="420" y="290" width="360" height="120" />
+  <text x="600" y="320" text-anchor="middle" class="title">Postgres (agentic_ai)</text>
+  <text x="600" y="342" text-anchor="middle" class="small">properties · provenance · reports · extensions</text>
+  <text x="600" y="362" text-anchor="middle" class="small">pgcrypto · citext · pg_trgm · btree_gin</text>
+
+  <!-- Alembic -->
+  <rect class="box" x="820" y="300" width="220" height="60" />
+  <text x="930" y="332" text-anchor="middle" class="title">Alembic</text>
+  <text x="930" y="350" text-anchor="middle" class="small">migrations · schema versioning</text>
+
+  <!-- Arrows center -->
+  <line class="arrow" x1="750" y1="120" x2="600" y2="170" />
+  <line class="arrow" x1="600" y1="260" x2="600" y2="290" />
+  <line class="arrow" x1="780" y1="350" x2="820" y2="350" />
+
+  <!-- Dashboard -->
+  <rect class="box" x="36" y="420" width="260" height="120" />
+  <text x="166" y="450" text-anchor="middle" class="title">Dashboard (static)</text>
+  <text x="166" y="470" text-anchor="middle" class="small">property list · provenance · intake form</text>
+
+  <!-- Agents / Report generator -->
+  <rect class="box" x="300" y="420" width="360" height="120" />
+  <text x="480" y="450" text-anchor="middle" class="title">Agent workflows / Report generator</text>
+  <text x="480" y="470" text-anchor="middle" class="small">LLMs · scoring · structured reports</text>
+
+  <!-- Exports / Integrations -->
+  <rect class="box" x="700" y="420" width="340" height="120" />
+  <text x="870" y="450" text-anchor="middle" class="title">Integrations & Exports</text>
+  <text x="870" y="470" text-anchor="middle" class="small">APIs · CSV · data connectors</text>
+
+  <!-- Arrows bottom -->
+  <line class="arrow" x1="600" y1="410" x2="480" y2="420" />
+  <line class="arrow" x1="480" y1="350" x2="480" y2="420" />
+  <line class="arrow" x1="780" y1="420" x2="700" y2="420" />
+
+  <!-- Docker / Compose -->
+  <rect x="36" y="560" width="1000" height="120" fill="#f7fafc" stroke="#a0aec0" rx="6" />
+  <text x="86" y="590" class="label">Docker / docker-compose</text>
+  <text x="220" y="610" class="small">services: db, web (+ optional workers)</text>
+
+  <!-- Legend / footer -->
+  <text x="36" y="700" class="small">Generated diagram — Agentic AI application architecture</text>
+</svg>
